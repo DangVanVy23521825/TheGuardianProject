@@ -1,0 +1,30 @@
+name: "the_guardians_project"
+profile: the_guardians_project
+config-version: 2
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_modules"]
+
+models:
+  the_guardians_project:
+    +materialized: view
+    staging:
+      +schema: staging
+      +materialized: view
+      +tags: ["staging"]
+
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+      +tags: ["intermediate"]
+
+    marts:
+      +schema: analytics
+      +materialized: table
+      +tags: [ "marts", "core" ]
+
+      core:
+        +schema: analytics
+        +materialized: table
+        +tags: [ "core" ]

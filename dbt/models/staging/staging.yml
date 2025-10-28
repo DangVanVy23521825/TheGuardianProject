@@ -1,0 +1,145 @@
+version: 2
+
+models:
+  - name: stg_articles
+    description: "Staging model for Guardian articles — cleans and standardizes article data from the raw dw.articles table."
+    columns:
+      - name: article_id
+        description: "Unique ID for each article."
+        tests:
+          - not_null
+          - unique
+
+      - name: type
+        description: "Type of content, e.g., article, liveblog, gallery."
+
+      - name: section_id
+        description: "Foreign key reference to section."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_sections')
+                field: section_id
+
+      - name: publication_date
+        description: "Timestamp when the article was published."
+        tests:
+          - not_null
+
+      - name: title
+        description: "Main title of the article."
+
+      - name: headline
+        description: "Displayed headline of the article."
+
+      - name: trail_text
+        description: "Short preview text shown in lists."
+
+      - name: wordcount
+        description: "Number of words in the article content."
+
+      - name: publication_id
+        description: "Foreign key reference to publication."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_publications')
+                field: publication_id
+
+      - name: has_thumbnail
+        description: "Boolean indicating if the article has a thumbnail image."
+
+      - name: is_live_blog
+        description: "Boolean indicating if the article is a live blog."
+
+      - name: topic_country
+        description: "Country topic tag, e.g., 'Australia', 'US', 'UK'."
+
+      - name: ingested_at
+        description: "Timestamp when data was ingested into the warehouse."
+
+      - name: source_system
+        description: "Source system identifier (e.g., Guardian API)."
+
+  - name: stg_authors
+    description: "Normalized list of article authors extracted from articles."
+    columns:
+      - name: author_id
+        description: "Unique identifier for each author."
+        tests:
+          - unique
+          - not_null
+      - name: author_name
+        description: "Name of the author."
+        tests:
+          - not_null
+
+  - name: stg_sections
+    description: "List of content sections, e.g., world news, sport, culture."
+    columns:
+      - name: section_id
+        description: "Unique identifier for the section."
+        tests:
+          - unique
+          - not_null
+      - name: section_key
+        description: "Normalized section key, e.g., 'australia-news'."
+        tests:
+          - not_null
+          - unique
+      - name: section_name
+        description: "Readable section name."
+      - name: pillar_name
+        description: "Top-level pillar grouping, e.g., 'News', 'Culture'."
+
+  - name: stg_publications
+    description: "List of publication sources for articles (e.g., The Guardian, The Observer)."
+    columns:
+      - name: publication_id
+        description: "Unique identifier for publication."
+        tests:
+          - unique
+          - not_null
+      - name: publication_name
+        description: "Name of the publication."
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_article_authors
+    description: "Mapping table between articles and authors (many-to-many)."
+    columns:
+      - name: article_id
+        description: "Reference to the article."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_articles')
+              field: article_id
+      - name: author_id
+        description: "Reference to the author."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_authors')
+                field: author_id
+      - name: ord
+        description: "Author order for multi-author articles."
+
+  - name: stg_article_keywords
+    description: "List of keywords linked to each article."
+    columns:
+      - name: article_id
+        description: "Reference to the related article."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_articles')
+                field: article_id
+      - name: keyword
+        description: "Individual keyword string extracted from the article."
+        tests:
+          - not_null

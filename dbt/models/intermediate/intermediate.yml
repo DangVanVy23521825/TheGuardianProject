@@ -1,0 +1,120 @@
+version: 2
+
+models:
+  - name: int_articles_enriched
+    description: >
+      Enriches raw article data from staging by joining with sections and publications.
+      Adds derived features like content_length, is_long_read flag, and has_thumbnail.
+    columns:
+      - name: article_id
+        description: Primary key - unique article identifier
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: Article title
+      - name: publication_date
+        description: Date when article was published (date only, no time)
+        tests:
+          - not_null
+      - name: wordcount
+        description: Total word count of the article
+      - name: body
+        description: Full article body text
+      - name: section_name
+        description: Human-readable section name
+      - name: section_key
+        description: Section slug/key for URLs
+      - name: publication_name
+        description: Publication or edition name
+      - name: has_thumbnail
+        description: Boolean flag indicating if article has a thumbnail image
+      - name: is_long_read
+        description: Boolean flag for long-form articles (wordcount > 1000)
+      - name: content_length
+        description: Character length of the article body
+
+  - name: int_articles_daily_agg
+    description: >
+      Daily aggregated article statistics grouped by publication date, section, and publication.
+      Provides metrics like article count, average wordcount, long-read count, and thumbnail presence.
+    columns:
+      - name: publication_date
+        description: Date of publication
+        tests:
+          - not_null
+      - name: section_key
+        description: Section identifier
+      - name: section_name
+        description: Section display name
+      - name: publication_name
+        description: Publication name
+      - name: article_count
+        description: Total number of articles published in this group
+        tests:
+          - not_null
+      - name: avg_wordcount
+        description: Average word count across articles in this group
+      - name: avg_body_length
+        description: Average character length of article bodies
+      - name: long_read_count
+        description: Count of long-form articles (wordcount > 1000)
+      - name: with_thumbnail_count
+        description: Count of articles with thumbnail images
+
+  - name: int_author_activity
+    description: >
+      Daily author productivity statistics showing how many articles each author published per day.
+      Useful for tracking author output and content production patterns.
+    columns:
+      - name: author_id
+        description: Foreign key to authors dimension
+        tests:
+          - not_null
+      - name: publication_date
+        description: Date when articles were published
+        tests:
+          - not_null
+      - name: articles_written
+        description: Total number of articles written by this author on this date
+        tests:
+          - not_null
+
+  - name: int_date_dim
+    description: >
+      Generated date dimension table spanning from 2020-01-01 to current date.
+      Provides calendar attributes for date-based analysis and reporting.
+    columns:
+      - name: date_day
+        description: The date value (primary key)
+        tests:
+          - unique
+          - not_null
+      - name: year
+        description: Four-digit year (e.g., 2025)
+      - name: month
+        description: Month number (1-12)
+      - name: day
+        description: Day of month (1-31)
+      - name: weekday_name
+        description: Full weekday name (Monday, Tuesday, etc.)
+      - name: weekday_number
+        description: Day of week number (0=Sunday, 6=Saturday)
+
+  - name: int_keywords_popularity
+    description: >
+      Daily keyword popularity metrics tracking how many articles mention each keyword.
+      Useful for identifying trending topics and content themes over time.
+    columns:
+      - name: keyword
+        description: Lowercase normalized keyword
+        tests:
+          - not_null
+      - name: pub_day
+        description: Publication date (truncated to day)
+        tests:
+          - not_null
+      - name: article_count
+        description: Number of distinct articles containing this keyword on this day
+        tests:
+          - not_null

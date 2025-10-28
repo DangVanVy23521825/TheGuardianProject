@@ -1,0 +1,12 @@
+the_guardians_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: guardian-postgres
+      user: airflow
+      password: airflow
+      port: 5432
+      dbname: guardian_dw
+      schema: analytics
+      threads: 4

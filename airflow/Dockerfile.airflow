@@ -1,0 +1,40 @@
+# Base image Airflow
+FROM apache/airflow:2.9.0
+
+WORKDIR /opt/airflow
+
+# ---------------------------------------------------------------------
+# Install additional Python packages as airflow user
+# ---------------------------------------------------------------------
+USER airflow
+RUN pip install --no-cache-dir \
+    dbt-core \
+    dbt-postgres \
+    boto3 \
+    pandas \
+    numpy \
+    pyarrow \
+    tqdm \
+    nltk \
+    sqlalchemy \
+    psycopg2-binary \
+    python-dotenv \
+    requests \
+    faiss-cpu \
+    sentence-transformers \
+    langchain-core \
+    langchain-groq
+
+RUN python -m nltk.downloader punkt punkt_tab stopwords averaged_perceptron_tagger
+
+# ---------------------------------------------------------------------
+# Copy DAGs and source code with correct ownership
+# ---------------------------------------------------------------------
+COPY --chown=airflow:root ./airflow/dags ./dags
+COPY --chown=airflow:root ./airflow/plugins ./plugins
+COPY --chown=airflow:root ./src ./src
+
+# ---------------------------------------------------------------------
+# Default command to run webserver
+# ---------------------------------------------------------------------
+CMD ["bash", "-c", "airflow webserver"]

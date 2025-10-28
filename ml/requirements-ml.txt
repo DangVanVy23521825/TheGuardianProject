@@ -1,0 +1,9 @@
+torch
+transformers
+sentence-transformers
+nltk
+beautifulsoup4
+boto3
+pandas
+fastparquet
+pyyaml

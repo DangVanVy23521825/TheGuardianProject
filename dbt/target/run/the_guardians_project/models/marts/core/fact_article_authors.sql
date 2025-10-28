@@ -1,0 +1,39 @@
+
+  
+    
+
+  create  table "guardian_dw"."analytics_analytics"."fact_article_authors__dbt_tmp"
+  
+  
+    as
+  
+  (
+    
+
+with
+article_authors as (
+    select * from "guardian_dw"."analytics_staging"."stg_article_authors"
+),
+articles as (
+    select article_id, publication_date, section_key
+    from "guardian_dw"."analytics_intermediate"."int_articles_enriched"
+),
+sections as (
+    select section_id, section_key
+    from "guardian_dw"."analytics_staging"."stg_sections"
+)
+
+select
+    row_number() over () as fact_article_author_id,
+    aa.article_id,
+    aa.author_id,
+    s.section_id,
+    a.publication_date as date_id,
+    aa.ord as author_order,
+    case when aa.ord = 0 then true else false end as is_primary_author,
+    current_timestamp as dw_loaded_at
+from article_authors aa
+join articles a on aa.article_id = a.article_id
+left join sections s on a.section_key = s.section_key
+  );
+  

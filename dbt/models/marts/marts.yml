@@ -1,0 +1,287 @@
+version: 2
+
+models:
+  - name: dim_authors
+    description: "Dimension table for article authors, including activity metrics and author tiers."
+    columns:
+      - name: author_id
+        description: "Unique identifier for each author."
+        tests:
+          - unique
+          - not_null
+      - name: author_name
+        description: "Full name of the author."
+      - name: author_tier
+        description: "Tier classification based on total articles written (Prolific, Active, Regular, etc.)."
+      - name: first_article_date
+        description: "Date of the first observed article by the author."
+      - name: last_article_date
+        description: "Date of the most recent observed article by the author."
+      - name: dw_updated_at
+        description: "ETL timestamp for DW record update."
+
+  - name: dim_date
+    description: "Date dimension table providing enriched calendar attributes."
+    columns:
+      - name: date_day
+        description: "The actual calendar date (PK for date dimension)."
+        tests:
+          - unique
+          - not_null
+      - name: year
+        description: "Year of the date."
+      - name: quarter
+        description: "Quarter of the date."
+      - name: month
+        description: "Month number of the date."
+      - name: month_name
+        description: "Month name (abbrev)."
+      - name: week_of_year
+        description: "Week number in the year."
+      - name: weekday_number
+        description: "Weekday number (0-6 or 1-7 depending on implementation)."
+      - name: is_weekend
+        description: "True if the date falls on a weekend."
+      - name: season
+        description: "Season label (Winter/Spring/Summer/Autumn)."
+      - name: dw_updated_at
+        description: "ETL timestamp for DW record update."
+
+  - name: dim_publications
+    description: "Dimension table for publications, containing aggregate statistics and active days."
+    columns:
+      - name: publication_id
+        description: "Unique identifier for each publication."
+        tests:
+          - unique
+          - not_null
+      - name: publication_name
+        description: "Name of the publication (e.g., The Guardian, The Observer)."
+      - name: country
+        description: "Country of the publication (if known)."
+      - name: total_articles
+        description: "Total number of articles published by this publication."
+      - name: dw_updated_at
+        description: "ETL timestamp for DW record update."
+
+  - name: dim_sections
+    description: "Dimension table for article sections, including pillar and volume classification."
+    columns:
+      - name: section_id
+        description: "Numeric surrogate key identifier for each section."
+        tests:
+          - unique
+          - not_null
+      - name: section_key
+        description: "Slug of the section, used for display or mapping to source data."
+      - name: section_name
+        description: "Human readable name of the section."
+      - name: pillar_name
+        description: "Higher-level pillar grouping (Politics, Sport, Culture, etc.)."
+      - name: section_activity_level
+        description: "Activity tier based on article count (High Volume, Medium, etc.)."
+      - name: dw_updated_at
+        description: "ETL timestamp for DW record update."
+
+  - name: dim_keywords
+    description: "Dimension table for keywords (normalized), with popularity metrics and first/last seen."
+    columns:
+      - name: keyword_id
+        description: "Surrogate key for keyword."
+        tests:
+          - unique
+          - not_null
+      - name: keyword_name
+        description: "Normalized keyword text (lowercase, trimmed)."
+        tests:
+          - not_null
+      - name: total_articles
+        description: "Total number of articles containing this keyword."
+      - name: avg_articles_per_day
+        description: "Average number of articles per active day containing this keyword."
+      - name: active_days
+        description: "Number of distinct days the keyword appears in articles."
+      - name: first_seen_date
+        description: "First date the keyword was observed."
+      - name: last_seen_date
+        description: "Most recent date the keyword was observed."
+      - name: keyword_popularity_level
+        description: "Categorized popularity level (Very Popular / Popular / Common / Rare / Occasional)."
+      - name: dw_updated_at
+        description: "ETL timestamp for DW record update."
+
+  - name: fact_articles
+    description: "Fact table containing detailed article-level metrics (grain = 1 article). Only FKs and measures."
+    columns:
+      - name: fact_article_id
+        description: "Surrogate PK for fact row."
+        tests:
+          - unique
+          - not_null
+      - name: article_id
+        description: "Natural article identifier from source."
+        tests:
+          - not_null
+      - name: date_id
+        description: "Publication date (FK to dim_date.date_day)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: section_id
+        description: "Foreign key referencing dim_sections.section_id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sections')
+              field: section_id
+      - name: publication_id
+        description: "Foreign key referencing dim_publications.publication_id."
+        tests:
+          - relationships:
+              to: ref('dim_publications')
+              field: publication_id
+      - name: author_count
+        description: "Number of authors credited for the article."
+      - name: keyword_count
+        description: "Number of distinct keywords associated with the article."
+      - name: wordcount
+        description: "Word count of the article."
+      - name: content_length
+        description: "Body length or token count as available."
+      - name: is_long_read
+        description: "Boolean flag if article is longread."
+      - name: is_feature_length
+        description: "Boolean flag if article > feature threshold (e.g., 2000 words)."
+      - name: has_thumbnail
+        description: "Boolean flag if article has thumbnail image."
+      - name: dw_loaded_at
+        description: "ETL timestamp for DW row load."
+
+  - name: fact_article_authors
+    description: "Mapping fact table connecting articles and authors, capturing author order and primary author flag."
+    columns:
+      - name: fact_article_author_id
+        description: "Surrogate PK for the author-article fact row."
+        tests:
+          - unique
+          - not_null
+      - name: article_id
+        description: "Article ID, referencing fact_articles.article_id."
+        tests:
+          - relationships:
+              to: ref('fact_articles')
+              field: article_id
+      - name: author_key
+        description: "Author ID, referencing dim_authors.author_id."
+        tests:
+          - relationships:
+              to: ref('dim_authors')
+              field: author_id
+      - name: date_id
+        description: "Publication date (FK to dim_date.date_day)."
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: section_id
+        description: "Section FK for context (dim_sections.section_id)."
+        tests:
+          - relationships:
+              to: ref('dim_sections')
+              field: section_id
+      - name: author_order
+        description: "Order of the author on the byline (0 = primary)."
+      - name: is_primary_author
+        description: "True if the author is listed first for the article."
+      - name: dw_loaded_at
+        description: "ETL timestamp for DW row load."
+
+  - name: fact_author_daily_stats
+    description: "Aggregated fact table tracking author activity and productivity on a daily basis (grain = author x date)."
+    columns:
+      - name: fact_author_daily_id
+        description: "Surrogate PK for the daily author fact row."
+        tests:
+          - unique
+          - not_null
+      - name: author_key
+        description: "Foreign key to dim_authors.author_id."
+        tests:
+          - relationships:
+              to: ref('dim_authors')
+              field: author_id
+      - name: date_key
+        description: "Publication date for daily stats (FK to dim_date.date_day)."
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: section_id
+        description: "Optional section context (FK to dim_sections.section_id)."
+        tests:
+          - relationships:
+              to: ref('dim_sections')
+              field: section_id
+      - name: articles_written
+        description: "Number of articles written by this author on that date."
+      - name: total_wordcount
+        description: "Total wordcount written by the author on that date."
+      - name: avg_wordcount
+        description: "Average wordcount per article that date."
+      - name: sections_covered
+        description: "Number of distinct sections covered that date."
+      - name: long_reads_written
+        description: "Count of long reads written that date."
+      - name: feature_length_written
+        description: "Count of feature-length articles written that date."
+      - name: daily_activity_level
+        description: "Categorized level of daily author activity."
+      - name: dw_loaded_at
+        description: "ETL timestamp for DW row load."
+
+  - name: fact_article_keywords
+    description: "Fact table aggregating keyword performance metrics by date, section, and publication (grain = keyword x date x section x publication)."
+    columns:
+      - name: fact_keyword_id
+        description: "Surrogate key for this fact record."
+        tests:
+          - unique
+          - not_null
+      - name: keyword_id
+        description: "FK to dim_keywords.keyword_id."
+        tests:
+          - relationships:
+              to: ref('dim_keywords')
+              field: keyword_id
+      - name: date_key
+        description: "Publication date (FK to dim_date.date_day)."
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+      - name: section_id
+        description: "Foreign key referencing dim_sections.section_id."
+        tests:
+          - relationships:
+              to: ref('dim_sections')
+              field: section_id
+      - name: publication_id
+        description: "Foreign key referencing dim_publications.publication_id."
+        tests:
+          - relationships:
+              to: ref('dim_publications')
+              field: publication_id
+      - name: total_articles
+        description: "Number of articles containing this keyword on a given date."
+      - name: avg_wordcount
+        description: "Average wordcount for articles containing this keyword on that date."
+      - name: long_read_count
+        description: "Number of long reads among articles containing this keyword."
+      - name: with_thumbnail_count
+        description: "Number of articles with thumbnails among those containing this keyword."
+      - name: avg_body_length
+        description: "Average body length (content_length) for the group."
+      - name: dw_loaded_at
+        description: "ETL timestamp for DW row load."

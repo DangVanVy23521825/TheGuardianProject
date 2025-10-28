@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Data & models
+data/
+*.parquet
+*.csv
+*.faiss
+*.pkl
+*.json
+*.log
+
+# Airflow
+airflow/logs/
+airflow/dags/__pycache__/
+airflow/tmp/
+
+# Credentials
+.env
+*.key
+*.secret

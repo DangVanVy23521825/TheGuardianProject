@@ -1,0 +1,15 @@
+FROM apache/superset:latest
+
+USER root
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y libpq-dev gcc python3-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install packages using SYSTEM Python (not venv)
+RUN /usr/local/bin/python3 -m pip install --no-cache-dir \
+    psycopg2-binary==2.9.9 \
+    pg8000==1.30.3
+
+USER superset

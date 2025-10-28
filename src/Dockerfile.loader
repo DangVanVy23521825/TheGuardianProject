@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+# Đặt thư mục làm việc
+WORKDIR /app
+
+# Cài các gói hệ thống cần thiết (vd: build-essential cho psycopg2)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Sao chép toàn bộ source code vào image
+COPY . /app
+
+# Cài các thư viện Python cần thiết
+RUN pip install --no-cache-dir \
+    pandas \
+    boto3 \
+    sqlalchemy \
+    psycopg2-binary \
+    pyarrow \
+    python-dotenv
+
+ENV PYTHONPATH=/app
+
+# Lệnh mặc định khi container khởi động
+CMD ["python", "analytics/load_parquet_to_postgres.py"]

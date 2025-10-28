@@ -1,0 +1,33 @@
+version: 2
+
+sources:
+  - name: guardian_dw
+    description: "Raw source tables for The Guardian project (from schema dw)"
+    database: ''
+    schema: dw
+    tables:
+      - name: articles
+        description: "Raw articles loaded from S3 parquet files"
+        columns:
+          - name: article_id
+            tests:
+              - not_null
+              - unique
+          - name: publication_date
+            tests:
+              - not_null
+
+      - name: authors
+        description: "Unique list of authors"
+
+      - name: sections
+        description: "Sections and categories of The Guardian articles"
+
+      - name: publications
+        description: "Publications or editions in The Guardian"
+
+      - name: article_authors
+        description: "Mapping between articles and authors (many-to-many)"
+
+      - name: article_keywords
+        description: "Keywords extracted from articles"

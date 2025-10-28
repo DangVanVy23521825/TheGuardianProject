@@ -1,0 +1,17 @@
+boto3
+requests
+pandas
+pyyaml
+apache-airflow==2.9.0
+apache-airflow-providers-amazon
+psycopg2-binary
+transformers
+torch             # or accelerator depending on model
+sentence-transformers
+nltk
+beautifulsoup4
+python-dotenv
+pyarrow
+fastparquet
+dbt-core==1.8.4   # optional - pin to a stable version
+dbt-postgres

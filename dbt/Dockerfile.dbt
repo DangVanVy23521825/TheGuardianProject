@@ -1,0 +1,22 @@
+# Dockerfile.dbt
+FROM python:3.11-slim
+
+WORKDIR /usr/app
+
+# system deps for some dbt adapters / wheels
+
+RUN apt-get update && \
+    apt-get install -y build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# copy project (so dbt project files are inside image)
+COPY . /usr/app
+
+# install dbt core + postgres adapter (pin versions if you want)
+RUN pip install --no-cache-dir dbt-core dbt-postgres
+
+# make `dbt` the entrypoint so we can pass args after service name
+ENTRYPOINT ["dbt"]
+
+# sensible default command (optional): run nothing by default (shows help)
+CMD ["--help"]
