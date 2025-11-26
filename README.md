@@ -26,16 +26,15 @@ TheGuardianProject là một dự án data engineering hoàn chỉnh được x�
 - **Apache Airflow** – Điều phối ETL pipeline.
 - **dbt (data build tool)** – Quản lý và chuyển đổi dữ liệu.
 - **Postgres** – Hệ quản trị cơ sở dữ liệu mở lưu trữ dữ liệu đã xử lý.
-- **Jupyter Notebook** – Phân tích và trực quan hóa dữ liệu, xây dựng chatbot demo.
-
-## 📁 Cấu trúc repo (tham khảo)
+- 
+## 📁 Cấu trúc repo 
 
 ```
 .
 ├── airflow/            # DAG và cấu hình liên quan đến Airflow
 ├── dbt/                # Dự án dbt và models chuyển đổi dữ liệu
-├── notebook/           # Jupyter Notebooks phân tích dữ liệu và chatbot demo
-├── sql/                # Script và schema cho Postgres
+├── docker/             # Set up image postgres
+├── src/                # Script và các job của pipeline
 ├── requirements.txt    # Các thư viện Python cần thiết
 ├── README.md           # Tài liệu dự án
 ```
