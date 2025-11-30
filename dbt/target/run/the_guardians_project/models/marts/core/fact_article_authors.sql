@@ -21,6 +21,9 @@ articles as (
 sections as (
     select section_id, section_key
     from "guardian_dw"."analytics_staging"."stg_sections"
+),
+dates as (
+    select date_id, date_day from "guardian_dw"."analytics_analytics"."dim_date"
 )
 
 select
@@ -28,12 +31,13 @@ select
     aa.article_id,
     aa.author_id,
     s.section_id,
-    a.publication_date as date_id,
+    dd.date_id,
     aa.ord as author_order,
     case when aa.ord = 0 then true else false end as is_primary_author,
     current_timestamp as dw_loaded_at
 from article_authors aa
 join articles a on aa.article_id = a.article_id
 left join sections s on a.section_key = s.section_key
+left join dates dd on date_trunc('day', a.publication_date) = dd.date_day
   );
   

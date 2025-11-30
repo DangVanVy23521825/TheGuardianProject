@@ -1,66 +1,32 @@
 
 
 with
-
-keywords_popularity as (
-    select
-        keyword,
-        pub_day as publication_date,
-        article_count
-    from "guardian_dw"."analytics_intermediate"."int_keywords_popularity"
-),
-
 article_keywords as (
-    select
-        article_id,
-        lower(trim(keyword)) as keyword
+    select article_id, lower(trim(keyword)) as keyword
     from "guardian_dw"."analytics_staging"."stg_article_keywords"
 ),
-
 articles_enriched as (
-    select
-        article_id,
-        section_key,
-        publication_name,
-        publication_date,
-        wordcount,
-        is_long_read,
-        has_thumbnail,
-        content_length
+    select article_id, section_key, publication_name, publication_date, wordcount,
+           is_long_read, has_thumbnail, content_length
     from "guardian_dw"."analytics_intermediate"."int_articles_enriched"
 ),
-
 sections as (
-    select
-        section_id,
-        section_key
-    from "guardian_dw"."analytics_analytics"."dim_sections"
+    select section_id, section_key from "guardian_dw"."analytics_analytics"."dim_sections"
 ),
-
 publications as (
-    select
-        publication_id,
-        publication_name
-    from "guardian_dw"."analytics_analytics"."dim_publications"
+    select publication_id, publication_name from "guardian_dw"."analytics_analytics"."dim_publications"
 ),
-
 keywords_dim as (
-    select
-        keyword_id,
-        lower(trim(keyword_name)) as keyword_name
+    select keyword_id, lower(trim(keyword_name)) as keyword_name
     from "guardian_dw"."analytics_analytics"."dim_keywords"
 ),
-
 dates as (
-    select
-        date_day
-    from "guardian_dw"."analytics_analytics"."dim_date"
+    select date_id, date_day from "guardian_dw"."analytics_analytics"."dim_date"
 ),
-
 joined as (
     select
         kd.keyword_id,
-        d.date_day as date_key,
+        dd.date_id as date_key,
         s.section_id,
         p.publication_id,
         ae.wordcount,
@@ -72,9 +38,8 @@ joined as (
     left join sections s on ae.section_key = s.section_key
     left join publications p on ae.publication_name = p.publication_name
     left join keywords_dim kd on ak.keyword = kd.keyword_name
-    left join dates d on date_trunc('day', ae.publication_date) = d.date_day
+    left join dates dd on date_trunc('day', ae.publication_date) = dd.date_day
 ),
-
 aggregated as (
     select
         keyword_id,

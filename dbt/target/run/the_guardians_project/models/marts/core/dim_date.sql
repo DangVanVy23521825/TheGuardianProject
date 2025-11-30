@@ -17,6 +17,7 @@ with date_base as (
 
 enhanced_date as (
     select
+        row_number() over (order by date_day) as date_id,
         date_day,
         year,
         month,

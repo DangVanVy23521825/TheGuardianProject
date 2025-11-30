@@ -1,24 +1,23 @@
 {{ config(materialized='table') }}
 
 with
-author_activity as (
-    select * from {{ ref('int_author_activity') }}
+article_authors as (
+    select * from {{ ref('stg_article_authors') }}
 ),
 articles as (
     select article_id, publication_date, section_key, wordcount
     from {{ ref('int_articles_enriched') }}
 ),
-article_authors as (
-    select * from {{ ref('stg_article_authors') }}
-),
 sections as (
     select section_id, section_key from {{ ref('stg_sections') }}
-)
-
-, enriched as (
+),
+dates as (
+    select date_id, date_day from {{ ref('dim_date') }}
+),
+enriched as (
     select
         aa.author_id,
-        a.publication_date as date_id,
+        dd.date_id,
         s.section_id,
         count(distinct a.article_id) as articles_written,
         sum(a.wordcount) as total_wordcount,
@@ -31,7 +30,8 @@ sections as (
     from article_authors aa
     join articles a on aa.article_id = a.article_id
     left join sections s on a.section_key = s.section_key
-    group by aa.author_id, a.publication_date, s.section_id
+    left join dates dd on date_trunc('day', a.publication_date) = dd.date_day
+    group by aa.author_id, dd.date_id, s.section_id
 )
 
 select

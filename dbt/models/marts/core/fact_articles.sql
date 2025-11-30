@@ -24,12 +24,15 @@ publications as (
 articles_staging as (
     select article_id, section_id, publication_id
     from {{ ref('stg_articles') }}
+),
+dates as (
+    select date_id, date_day from {{ ref('dim_date') }}
 )
 
 select
     row_number() over () as fact_article_id,
     a.article_id,
-    a.publication_date as date_id,
+    dd.date_id as date_id,
     ast.section_id,
     ast.publication_id,
     coalesce(aa.author_count, 0) as author_count,
@@ -44,3 +47,4 @@ from articles a
 left join articles_staging ast on a.article_id = ast.article_id
 left join article_authors aa on a.article_id = aa.article_id
 left join article_keywords ak on a.article_id = ak.article_id
+left join dates dd on date_trunc('day', a.publication_date) = dd.date_day
