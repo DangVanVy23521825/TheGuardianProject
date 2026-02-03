@@ -1,86 +1,83 @@
 # TheGuardianProject
 
-**End-to-end Data Engineering Pipeline for The Guardian**  
-Automates ingestion, transformation, and analysis of news data, with a demo chatbot for semantic retrieval.
+**End-to-End Data Engineering Pipeline for The Guardian**  
+Automates news data ingestion, transformation, and analytics, with a demo chatbot for semantic retrieval.
 
-## 🌟 Giới thiệu
+## 🌟 Overview
 
-TheGuardianProject là một dự án data engineering hoàn chỉnh được xây dựng dựa trên 3 công nghệ chính: **Airflow**, **dbt**, và **Postgres**. Dự án cho phép tự động hóa các bước thu thập, xử lý và phân tích dữ liệu tin tức từ The Guardian. Ngoài ra, hệ thống còn cung cấp một chatbot demo giúp truy vấn dữ liệu ngữ nghĩa (semantic retrieval).
+TheGuardianProject is a complete **data engineering project** built using three core technologies: **Apache Airflow**, **dbt**, and **PostgreSQL**.  
+The system automates the collection, transformation, and analytical modeling of news data from *The Guardian API*.  
+In addition, the project includes a **demo semantic retrieval chatbot** to showcase how processed data can be queried using natural language.
 
-## 🚀 Tính năng chính
+## 🚀 Key Features
 
-- **Ingestion (Thu thập dữ liệu):**  
-  Tự động tải dữ liệu tin tức từ API của The Guardian hoặc nguồn lưu trữ mẫu.
+- **Data Ingestion**  
+  Automatically fetches news articles from The Guardian API or sample data sources.
 
-- **ETL & Transformation:**  
-  Sử dụng Airflow để điều phối luồng dữ liệu và dbt để chuyển đổi/chuyển hóa dữ liệu thành dạng phân tích thuận tiện hơn.
+- **ETL & Data Transformation**  
+  Uses **Airflow** to orchestrate data pipelines and **dbt** to clean, normalize, and transform raw data into analytics-ready models.
 
-- **Data Analytics:**  
-  Lưu trữ dữ liệu trên Postgres, có thể dùng notebook hoặc công cụ BI để phân tích dữ liệu.
+- **Analytical Data Storage**  
+  Stores processed data in **PostgreSQL**, enabling downstream analytics via notebooks or BI tools.
 
-- **Chatbot Semantic Retrieval:**  
-  Một chatbot demo dùng NLP để truy vấn các thông tin ngữ nghĩa từ kho dữ liệu báo chí đã xử lý.
+- **Semantic Retrieval Chatbot (Demo)**  
+  A lightweight chatbot that performs semantic search over the processed news content, demonstrating the integration of NLP with analytical data pipelines.
 
-## 🛠️ Công nghệ sử dụng
+## 🛠️ Tech Stack
 
-- **Apache Airflow** – Điều phối ETL pipeline.
-- **dbt (data build tool)** – Quản lý và chuyển đổi dữ liệu.
-- **Postgres** – Hệ quản trị cơ sở dữ liệu mở lưu trữ dữ liệu đã xử lý.
-- 
-## 📁 Cấu trúc repo 
+- **Apache Airflow** – Workflow orchestration for ETL pipelines  
+- **dbt (data build tool)** – Data modeling and transformations  
+- **PostgreSQL** – Relational database for analytical storage
 
-```
-.
-├── airflow/            # DAG và cấu hình liên quan đến Airflow
-├── dbt/                # Dự án dbt và models chuyển đổi dữ liệu
-├── docker/             # Set up image postgres
-├── src/                # Script và các job của pipeline
-├── requirements.txt    # Các thư viện Python cần thiết
-├── README.md           # Tài liệu dự án
-```
+## 📁 Repository Structure
+├── airflow/            # Airflow DAGs and configurations
+├── dbt/                # dbt project and transformation models
+├── docker/             # PostgreSQL Docker setup
+├── src/                # Pipeline scripts and processing jobs
+├── requirements.txt    # Python dependencies
+├── README.md           # Project documentation
 
-## ⚡ Hướng dẫn cài đặt & chạy thử
+## ⚡ Setup & Run Guide
 
-### 1. Clone repo:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/DangVanVy23521825/TheGuardianProject.git
 cd TheGuardianProject
 ```
 
-### 2. Cài đặt Python & các package yêu cầu
+### 2. Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Khởi động các thành phần:
+### 3. Start system components
 
-- **Postgres:**  
-  Cài đặt hoặc khởi tạo PostgreSQL, tạo database cho dự án này.
-
-- **Airflow:**  
-  Khởi tạo các dịch vụ Airflow, cấu hình kết nối với Postgres.
+- **PostgreSQL**
+Install PostgreSQL or start it using Docker, then create a database for the project.
+- **Apache Airflow**
+Initialize and run Airflow services, and configure the connection to PostgreSQL.
 
 ```bash
-# Ví dụ (chạy bằng docker-compose hay trực tiếp, tuỳ cấu hình trong repo)
 airflow initdb
 airflow webserver &
 airflow scheduler &
 ```
 
 - **dbt:**  
-  Thiết lập kết nối với Postgres và chạy các lệnh chuyển đổi.
+  Configure the database connection and execute transformations.
 
 ```bash
 dbt run
 ```
 
 - **Notebook & Chatbot:**  
-  Vào thư mục notebook và mở file trên Jupyter để trải nghiệm truy vấn dữ liệu hoặc chatbot.
+Navigate to the notebook directory and open the provided notebooks in Jupyter to explore analytics or test the demo chatbot.
 
-## 📣 Đóng góp
+## 📣 Contributions
 
-Mọi đóng góp mở rộng chức năng hoặc cải thiện pipeline đều được hoan nghênh! Hãy tạo issue hoặc gửi pull request qua GitHub.
+Contributions to improve the pipeline, add new features, or optimize performance are welcome.
+Feel free to open an issue or submit a pull request.
 
-**Tác giả:** [DangVanVy23521825](https://github.com/DangVanVy23521825)
+**Author:** [DangVanVy23521825](https://github.com/DangVanVy23521825)
